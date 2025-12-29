@@ -1,6 +1,6 @@
 # Briz Documentation
 
-Lightweight JavaScript library for making AJAX requests using declarative HTML attributes, inspired by hypermedia-driven application
+A small, experimental javascript helper for server-rendered, hypermedia-driven applications.
 
 ## Installation
 
