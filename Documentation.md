@@ -43,6 +43,8 @@ The library will automatically initialize on `DOMContentLoaded`.
 | `z-data` | CSS selector of form for POST data | `z-data="#myForm"` |
 | `z-headers` | Custom headers (JSON string) | `z-headers='{"X-Token":"abc"}'` |
 | `z-options` | Additional fetch options (JSON string) | `z-options='{"cache":"no-cache"}'` |
+| `z-loading` | Do an Loading state using CSS selector | `z-loading="#loading"` |
+| `z-confirm` | Give a confirmation before doing something | `z-confirm="Are you sure  to leave?"` |
 
 ## Default Triggers
 

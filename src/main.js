@@ -18,8 +18,8 @@ function zInit() {
     const el = e.target.closest("[z-get], [z-post]")
     if(!el) return
     const event = e.type
-    const trigger = el.getAttribute("z-trigger") || defaultEvents[el.tagName] || "click"
-    if(trigger !== event) return
+    const action = el.getAttribute("z-action") || defaultEvents[el.tagName] || "click"
+    if(action !== event) return
     
     if(event === "submit") e.preventDefault()
     
@@ -29,6 +29,7 @@ function zInit() {
     const headers = el.getAttribute("z-headers") ? JSON.parse(el.getAttribute("z-headers")) : {}
     const options = el.getAttribute("z-options") ? JSON.parse(el.getAttribute("z-options")) : {}
     const loading = el.getAttribute("z-loading")
+    const confirmAttr = el.getAttribute("z-confirm")
     
     //data handling
     let bodyData
@@ -45,8 +46,13 @@ function zInit() {
     if(el.hasAttribute("z-get")) method = "GET"
     if(el.hasAttribute("z-post")) method = "POST"
     
+    //action before request
     const createLoading = document.querySelector(loading)
+    if(confirmAttr) {
+      if(!confirm(confirmAttr)) return
+    }
     
+    //request
     if(!method) return
     await $fetch(url, {
       loading: createLoading,
