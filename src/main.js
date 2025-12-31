@@ -28,6 +28,7 @@ function zInit() {
     const data = el.getAttribute("z-data")
     const headers = el.getAttribute("z-headers") ? JSON.parse(el.getAttribute("z-headers")) : {}
     const options = el.getAttribute("z-options") ? JSON.parse(el.getAttribute("z-options")) : {}
+    const loading = el.getAttribute("z-loading")
     
     //data handling
     let bodyData
@@ -44,8 +45,11 @@ function zInit() {
     if(el.hasAttribute("z-get")) method = "GET"
     if(el.hasAttribute("z-post")) method = "POST"
     
+    const createLoading = document.querySelector(loading)
+    
     if(!method) return
     await $fetch(url, {
+      loading: createLoading,
       headers,
       method,
       body: bodyData,
@@ -57,7 +61,8 @@ function zInit() {
 }
 
 async function $fetch(url, params = {}) {
-  const { method, headers = {}, body, target, ...options } = params
+  const { loading, method, headers = {}, body, target, ...options } = params
+  
   const opt = {
     method,
     headers: {
@@ -71,6 +76,7 @@ async function $fetch(url, params = {}) {
   }
   
   try {
+    if(loading) loading.style.display = ""
     const res = await fetch(url, opt)
     const html = await res.text()
     if(target) {
@@ -79,6 +85,8 @@ async function $fetch(url, params = {}) {
     }
   } catch(err) {
     console.error(`Request failed ${err}`)
+  } finally {
+    if(loading) loading.style.display = "none"
   }
 }
 
