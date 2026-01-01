@@ -30,7 +30,6 @@ function zInit() {
     const options = el.getAttribute("z-options") ? JSON.parse(el.getAttribute("z-options")) : {}
     const loading = el.getAttribute("z-loading")
     const confirmAttr = el.getAttribute("z-confirm")
-    const swap = el.getAttribute("z-swap")
     
     //data handling
     let bodyData
@@ -56,7 +55,6 @@ function zInit() {
     //request
     if(!method) return
     await $fetch(url, {
-      swap,
       loading: createLoading,
       headers,
       method,
@@ -69,7 +67,7 @@ function zInit() {
 }
 
 async function $fetch(url, params = {}) {
-  const { swap, loading, method, headers = {}, body, target, ...options } = params
+  const { loading, method, headers = {}, body, target, ...options } = params
   
   const opt = {
     method,
@@ -88,10 +86,7 @@ async function $fetch(url, params = {}) {
     const res = await fetch(url, opt)
     const html = await res.text()
     if(target) {
-      const tg = document.querySelector(target)
-      if(tg) tg.innerHTML = html
-    } else if(swap) {
-      const targetId = swap.split(",").map(p => p.trim())
+      const targetId = target.split(",")
       swapDom(html, targetId)
     }
   } catch(err) {
@@ -112,15 +107,20 @@ $fetch.inject = ({ headers, options }) => {
   Object.assign($fetch.defaults.options, options)
 }
 
-//swap logic
-function swapDom(html, parts = []) {
+//target logic
+function swapDom(html, parts = [], swap) {
   const parser = new DOMParser()
   const parsed = parser.parseFromString(html, "text/html")
   
   for(const part of parts) {
-    const id = document.querySelector(part)
-    const rep = parsed.querySelector(part)
-    id.replaceWith(rep)
+    const [selector, addMethod] = part.split(":")
+    const id = document.querySelector(selector)
+    const rep = parsed.querySelector(selector)
+    if(addMethod !== undefined) {
+      id.insertAdjacentHTML(addMethod, rep.innerHTML)
+    } else {
+      id.replaceWith(rep)
+    }
   }
 }
 
