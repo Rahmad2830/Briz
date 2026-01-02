@@ -66,10 +66,20 @@ function zInit() {
   }
 }
 
+//fetch wrapper
+$fetch.controllers = new Map()
 async function $fetch(url, params = {}) {
   const { loading, method, headers = {}, body, target, ...options } = params
   
+  //controller
+  const key = target || url
+  if($fetch.controllers.has(key)) $fetch.controllers.get(key).abort()
+
+  const controller = new AbortController()
+  $fetch.controllers.set(key, controller)
+  
   const opt = {
+    signal: controller.signal,
     method,
     headers: {
       "Accept": "text/html",
@@ -83,15 +93,23 @@ async function $fetch(url, params = {}) {
   
   try {
     if(loading) loading.style.display = ""
+    
     const res = await fetch(url, opt)
+    if(!res.ok) {
+      console.log(`Request failed ${res.status}`)
+      return
+    }
     const html = await res.text()
+    
     if(target) {
       const targetId = target.split(",")
       swapDom(html, targetId)
     }
   } catch(err) {
+    if(err.name === "AbortError") return
     console.error(`Request failed ${err}`)
   } finally {
+    if($fetch.controllers.get(key) === controller) $fetch.controllers.delete(key)
     if(loading) loading.style.display = "none"
   }
 }
