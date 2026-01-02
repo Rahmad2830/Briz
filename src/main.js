@@ -21,11 +21,16 @@ function zInit() {
     const action = el.getAttribute("z-action") || defaultEvents[el.tagName] || "click"
     if(action !== event) return
     
-    if(event === "submit") e.preventDefault()
+    if(event === "submit") {
+      if(el.tagName !== "FORM") {
+        console.warn("Submit event is only belong to form element")
+        return
+      }
+      e.preventDefault()
+    }
     
     const url = el.getAttribute("z-get") || el.getAttribute("z-post")
     const target = el.getAttribute("z-target")
-    const data = el.getAttribute("z-data")
     const headers = el.getAttribute("z-headers") ? JSON.parse(el.getAttribute("z-headers")) : {}
     const options = el.getAttribute("z-options") ? JSON.parse(el.getAttribute("z-options")) : {}
     const loading = el.getAttribute("z-loading")
@@ -33,12 +38,13 @@ function zInit() {
     
     //data handling
     let bodyData
-    if(data) {
-      const form = document.querySelector(data)
-      if(form) bodyData = new URLSearchParams(new FormData(form))
-      if (bodyData) {
-        headers["Content-Type"] = "application/x-www-form-urlencoded"
-      }
+    const form = el.closest("form")
+    if(form) bodyData = new URLSearchParams(new FormData(form))
+    if (bodyData && !headers["Content-Type"]) {
+      headers["Content-Type"] = "application/x-www-form-urlencoded"
+    }
+    if (bodyData && headers["Content-Type"] === "application/json") {
+      console.warn("Content-Type is JSON but body is URLSearchParams")
     }
     
     //fetching
@@ -72,7 +78,7 @@ async function $fetch(url, params = {}) {
   const { loading, method, headers = {}, body, target, ...options } = params
   
   //controller
-  const key = target || url
+  const key = `${method}:${url}:${target}`
   if($fetch.controllers.has(key)) $fetch.controllers.get(key).abort()
 
   const controller = new AbortController()
@@ -102,7 +108,7 @@ async function $fetch(url, params = {}) {
     const html = await res.text()
     
     if(target) {
-      const targetId = target.split(",")
+      const targetId = target.split(",").map(t => t.trim())
       swapDom(html, targetId)
     }
   } catch(err) {
@@ -126,15 +132,19 @@ $fetch.inject = ({ headers, options }) => {
 }
 
 //target logic
-function swapDom(html, parts = [], swap) {
+function swapDom(html, parts = []) {
   const parser = new DOMParser()
   const parsed = parser.parseFromString(html, "text/html")
   
   for(const part of parts) {
-    const [selector, addMethod] = part.split(":")
+    const [selector, addMethod] = part.split(":").map(s => s.trim())
     const id = document.querySelector(selector)
     const rep = parsed.querySelector(selector)
+    if(!rep || !id) continue
     if(addMethod !== undefined) {
+      if (rep.id === id.id) {
+        console.warn(`Invalid swap: wrapper used with ${addMethod}`)
+      }
       id.insertAdjacentHTML(addMethod, rep.innerHTML)
     } else {
       id.replaceWith(rep)
