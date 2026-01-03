@@ -39,18 +39,28 @@ function zInit() {
     //data handling
     let bodyData
     const form = el.closest("form")
-    if(form) bodyData = new URLSearchParams(new FormData(form))
-    if (bodyData && !headers["Content-Type"]) {
-      headers["Content-Type"] = "application/x-www-form-urlencoded"
+    if(form) {
+      const formData = new FormData(form)
+      let hasFile = false
+      
+      for(const [_, val] of formData.entries()) {
+        if(val instanceof File && val.name !== "") {
+          hasFile = true
+          break
+        }
+      }
+      
+      if(hasFile) {
+        delete headers["Content-Type"]
+        bodyData = formData
+      } else {
+        bodyData = new URLSearchParams(formData)
+        headers["Content-Type"] = "application/x-www-form-urlencoded"
+      }
     }
     if (bodyData && headers["Content-Type"] === "application/json") {
       console.warn("Content-Type is JSON but body is URLSearchParams")
     }
-    
-    //fetching
-    let method
-    if(el.hasAttribute("z-get")) method = "GET"
-    if(el.hasAttribute("z-post")) method = "POST"
     
     //action before request
     const createLoading = document.querySelector(loading)
@@ -59,6 +69,10 @@ function zInit() {
     }
     
     //request
+    let method
+    if(el.hasAttribute("z-get")) method = "GET"
+    if(el.hasAttribute("z-post")) method = "POST"
+    
     if(!method) return
     await $fetch(url, {
       loading: createLoading,
@@ -74,6 +88,7 @@ function zInit() {
 
 //fetch wrapper
 $fetch.controllers = new Map()
+
 async function $fetch(url, params = {}) {
   const { loading, method, headers = {}, body, target, ...options } = params
   
@@ -126,7 +141,7 @@ $fetch.defaults = {
   options: {}
 }
 
-$fetch.inject = ({ headers, options }) => {
+$fetch.inject = ({ headers = {}, options = {} }) => {
   Object.assign($fetch.defaults.headers, headers)
   Object.assign($fetch.defaults.options, options)
 }
