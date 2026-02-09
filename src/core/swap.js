@@ -1,9 +1,11 @@
 import { dispatchZEvent } from "./dispatcher.js"
+import { enqueueSwapOps } from "./batching.js"
 
 export function swap(html) {
   const element = document.querySelectorAll("[data-swap]")
   if(!element.length) return
   const fragment = document.createRange().createContextualFragment(html)
+  const ops = []
   
   element.forEach(el => {
     const value = el.getAttribute("data-swap")
@@ -11,37 +13,9 @@ export function swap(html) {
     const node = fragment.querySelector(`[data-swap="${value}"]`)
     if(!node) return
     
-    dispatchZEvent("z:before-swap", { el, mode }, el)
-    
-    let targetEl = el
-    if(mode) {
-      const children = node.childNodes.length ? Array.from(node.childNodes).map(c => c.cloneNode(true)) : []
-      if(children.length) {
-        switch (mode) {
-          case "append":
-            el.append(...children)
-            break
-          case "prepend":
-            el.prepend(...children)
-            break
-          case "after":
-            el.after(...children)
-            break
-          case "before":
-            el.before(...children)
-            break
-          default:
-            throw new Error(`mode ${mode} is not exist`)
-        }
-      }
-    } else {
-      const newEl = node.cloneNode(true)
-      el.replaceWith(newEl)
-      targetEl = newEl
-    }
-    
-    dispatchZEvent("z:after-swap", { el: targetEl, mode }, targetEl)
+    ops.push({ el, node, mode })
   })
+  if(ops.length) enqueueSwapOps(ops)
 }
 
 export function swapPage(html) {
