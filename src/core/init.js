@@ -1,10 +1,14 @@
 import { $fetch } from "./fetch.js"
 import { swap, swapPage } from "./swap.js"
+import { observer } from "../streams/mutation_observer.js"
 
 export function init() {
   document.addEventListener("click", handleNavigation)
   document.addEventListener("submit", handleForm)
   window.addEventListener("popstate", handlePopState)
+  observer.observe(document.body, {
+    childList: true, subtree: true
+  })
 }
 
 async function handleForm(e) {
