@@ -4,6 +4,10 @@ import { $fetch } from '../dist/Briz.min.js';
 describe('Briz.js Unit Tests', () => {
   
   beforeEach(() => {
+      window.document.dispatchEvent(new Event("DOMContentLoaded", {
+      bubbles: true,
+      cancelable: true
+    }))
     // Reset DOM setiap test
     document.body.innerHTML = '';
     document.head.innerHTML = '';

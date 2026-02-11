@@ -58,6 +58,10 @@ async function flush() {
 
 describe('Briz - SSE & Polling', () => {
   beforeEach(() => {
+      window.document.dispatchEvent(new Event("DOMContentLoaded", {
+      bubbles: true,
+      cancelable: true
+    }))
     document.body.innerHTML = ''
     vi.clearAllMocks()
     sseInstances.length = 0
@@ -68,8 +72,15 @@ describe('Briz - SSE & Polling', () => {
   })
 
   async function loadLib() {
-    return await import('../dist/Briz.min.js')
-  }
+  const lib = await import('../dist/Briz.min.js')
+
+  document.dispatchEvent(new Event("DOMContentLoaded", {
+    bubbles: true
+  }))
+
+  await Promise.resolve() // flush microtask
+  return lib
+}
 
   // =========================================
   // POLLING
@@ -149,7 +160,7 @@ describe('Briz - SSE & Polling', () => {
     document.body.innerHTML = `
       <div id="sse" data-sse="/sse" data-event="message"></div>
     `
-
+    
     await loadLib()
 
     expect(sseInstances.length).toBe(1)
