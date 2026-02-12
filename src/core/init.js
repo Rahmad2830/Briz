@@ -1,11 +1,18 @@
 import { $fetch } from "./fetch.js"
 import { swap, swapPage } from "./swap.js"
 import { observer } from "../streams/mutation_observer.js"
+import { visibilityHandler } from "../streams/polling/polling.js"
+
+let initialized = false
 
 export function init() {
+  if(initialized) return
+  initialized = true
+  
   document.addEventListener("click", handleNavigation)
   document.addEventListener("submit", handleForm)
   window.addEventListener("popstate", handlePopState)
+  document.addEventListener("visibilitychange", visibilityHandler)
   observer.observe(document.body, {
     childList: true, subtree: true
   })

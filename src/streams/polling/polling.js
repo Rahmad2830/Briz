@@ -2,6 +2,7 @@ import { $fetch } from "../../core/fetch.js"
 import { swap } from "../../core/swap.js"
 
 const polling_controller = new WeakMap()
+const active_elements = new Set()
 
 export function bootstrapPolling() {
   const elements = document.querySelectorAll("[data-polling]")
@@ -27,11 +28,23 @@ export function startPolling(element) {
     }
   }, interval)
   polling_controller.set(element, timer)
+  active_elements.add(element)
 }
 
-export function stopPolling(element) {
+export function visibilityHandler() {
+  active_elements.forEach(element => {
+    if(document.hidden) {
+      stopPolling(element, false)
+    } else {
+      startPolling(element)
+    }
+  })
+}
+
+export function stopPolling(element, isNotPause = true) {
   const polling = polling_controller.get(element)
   if(!polling) return
   clearInterval(polling)
   polling_controller.delete(element)
+  if(isNotPause) active_elements.delete(element)
 }
