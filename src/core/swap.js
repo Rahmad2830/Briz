@@ -55,12 +55,12 @@ export function swapPage(html) {
   oldMap.forEach(meta => meta.remove())
   
   //replace body
-  const body = doc.body
+  const body = doc.body.innerHTML
   const title = doc.title
   
   dispatchZEvent("z:before-navigation", {}, document)
   
-  document.body.replaceWith(body)
+  document.body.innerHTML = body
   document.title = title || document.title
   
   dispatchZEvent("z:after-navigation", {}, document)
