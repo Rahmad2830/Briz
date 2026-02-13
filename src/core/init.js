@@ -9,6 +9,7 @@ export function init() {
   if(initialized) return
   initialized = true
   
+  history.scrollRestoration = "manual"
   document.addEventListener("click", handleNavigation)
   document.addEventListener("submit", handleForm)
   window.addEventListener("popstate", handlePopState)
@@ -68,6 +69,13 @@ async function handleNavigation(e) {
   if (element.rel?.includes("external")) return
   e.preventDefault()
   
+  history.replaceState({
+    ...(history.state || {}),
+    scroll: {
+      x: window.scrollX,
+      y: window.scrollY
+    }
+  }, "")
   const url = element.href
   if(!url) return
   const method = "GET"
@@ -79,16 +87,22 @@ async function handleNavigation(e) {
     if(html) {
       history.pushState(null, "", url)
       swapPage(html)
+      requestAnimationFrame(() => window.scrollTo({ top: 0 }))
     }
   } catch (err) {
     console.error("Request failed", err)
   }
 }
 
-async function handlePopState() {
+async function handlePopState(e) {
   try {
     const html = await $fetch(location.href, { method: "GET" })
-    if(html) swapPage(html)
+    if(html) {
+      swapPage(html)
+      const scroll = e.state?.scroll
+      if(!scroll) return
+      requestAnimationFrame(() => window.scrollTo({ left: scroll.x, top: scroll.y }))
+    }
   } catch (err) {
     console.error("Popstate failed", err)
   }
