@@ -1,4 +1,4 @@
-import { $fetch } from "./fetch.js"
+import { $fetch, abortAllRequest } from "./fetch.js"
 import { swap, swapPage } from "./swap.js"
 import { observer } from "../streams/mutation_observer.js"
 import { visibilityHandler } from "../streams/polling/polling.js"
@@ -63,12 +63,12 @@ async function handleNavigation(e) {
   
   const element = e.target.closest("[data-nav]")
   if(!element || element.tagName !== "A") return
-  
   if (element.target === "_blank") return
   if (element.hasAttribute("download")) return
   if (element.rel?.includes("external")) return
-  e.preventDefault()
   
+  e.preventDefault()
+  abortAllRequest()
   history.replaceState({
     ...(history.state || {}),
     scroll: {
@@ -95,6 +95,8 @@ async function handleNavigation(e) {
 }
 
 async function handlePopState(e) {
+  abortAllRequest()
+  
   try {
     const html = await $fetch(location.href, { method: "GET" })
     if(html) {

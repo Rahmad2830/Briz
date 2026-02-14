@@ -16,6 +16,7 @@ let defaults = {
 }
 let specialReq = {}
 const controllers = new Map()
+let navigationController
 
 export async function $fetch(url, params = {}) {
   const normalizedUrl = normalizeUrl(url)
@@ -29,7 +30,10 @@ export async function $fetch(url, params = {}) {
   if(controllers.has(key)) controllers.get(key).abort()
   const controller = new AbortController()
   controllers.set(key, controller)
-  const isJson = body && typeof body === "object" && !(body instanceof FormData)
+  const requestTimeout = setTimeout(() => {
+    controller.abort()
+  }, 10000)
+  const isJson = body && typeof body === "object" && !(body instanceof FormData) && !(body instanceof URLSearchParams)
   const hasBody = method !== "GET" && body !== undefined
   
   const options = {
@@ -66,8 +70,14 @@ export async function $fetch(url, params = {}) {
     throw new Error(`Request Failed ${err.message}`)
   } finally {
     if(controllers.get(key) === controller) controllers.delete(key)
+    clearTimeout(requestTimeout)
     dispatchZEvent("z:after-request", { meta }, meta.el)
   }
+}
+
+export function abortAllRequest() {
+  controllers.forEach(controller => controller.abort())
+  controllers.clear()
 }
 
 $fetch.inject = ({ headers = {}, fetchOpt = {} }) => {
