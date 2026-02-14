@@ -10,10 +10,7 @@ export async function $fetch(url, params = {}) {
   } = params
   
   const key = `${url}:${method}`
-  if(controllers.has(key)) {
-    controllers.get(key).abort()
-    controllers.delete(key)
-  }
+  if(controllers.has(key)) controllers.get(key).abort()
   const controller = new AbortController()
   controllers.set(key, controller)
   const hasBody = method !== "GET" && body !== undefined

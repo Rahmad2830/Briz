@@ -15,21 +15,29 @@ export function startSSE(element) {
   
   const endpoint = element.dataset.sse
   if(!endpoint) throw new Error("[data-sse] missing required attribute: data-sse")
-  const events = element.dataset.event
-  if(!events) throw new Error("[data-sse] missing required attribute: data-event")
+  const eventsLists = element.dataset.event
+  if(!eventsLists) throw new Error("[data-sse] missing required attribute: data-event")
+  const events = eventsLists.split(",").map(e => e.trim())
+  
   const eventSource = new EventSource(endpoint, { withCredentials: true })
   const handler = (e) => {
     if(e.data) swap(e.data)
   }
-  eventSource.addEventListener(events, handler)
-  eventSource.onerror = (err) => { console.error("[data-sse] SSE connection error", err) }
+  events.forEach(event => {
+    eventSource.addEventListener(event, handler)
+  })
+  eventSource.onerror = (err) => {
+    console.error("[data-sse] SSE connection error", err)
+  }
   sse_controllers.set(element, { eventSource, handler, events })
 }
 
 export function stopSSE(element) {
   const source = sse_controllers.get(element)
   if(!source) return
-  source.eventSource.removeEventListener(source.events, source.handler)
+  source.events.forEach(event => {
+    source.eventSource.removeEventListener(event, source.handler)
+  })
   source.eventSource.close()
   sse_controllers.delete(element)
 }
