@@ -1,4 +1,4 @@
-import { dispatchZEvent } from "./dispatcher.js"
+import { dispatchZEvent } from "./utils.js"
 import { enqueueSwapOps } from "./batching.js"
 
 export function swap(html) {

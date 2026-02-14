@@ -19,15 +19,18 @@ export function startPolling(element) {
   if(!match) return
   const interval = parseFloat(match[1]) * 1000
   
-  const timer = setInterval(async() => {
+  async function poll() {
     try {
       const html = await $fetch(endpoint, { method: "GET" })
       if(html) swap(html)
     } catch (err) {
       console.error("Polling request failed", err)
     }
-  }, interval)
-  polling_controller.set(element, timer)
+    const timeoutId = setTimeout(poll, interval)
+    polling_controller.set(element, timeoutId)
+  }
+
+  poll()
   active_elements.add(element)
 }
 
@@ -44,7 +47,7 @@ export function visibilityHandler() {
 export function stopPolling(element, isNotPause = true) {
   const polling = polling_controller.get(element)
   if(!polling) return
-  clearInterval(polling)
+  clearTimeout(polling)
   polling_controller.delete(element)
   if(isNotPause) active_elements.delete(element)
 }

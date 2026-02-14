@@ -1,4 +1,4 @@
-import { dispatchZEvent } from "./dispatcher.js"
+import { dispatchZEvent } from "./utils.js"
 
 let queue = []
 let schedule = false

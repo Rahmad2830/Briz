@@ -1,4 +1,5 @@
 import { $fetch, abortAllRequest } from "./fetch.js"
+import { setZState } from "./utils.js"
 import { swap, swapPage } from "./swap.js"
 import { observer } from "../streams/mutation_observer.js"
 import { visibilityHandler } from "../streams/polling/polling.js"
@@ -69,13 +70,7 @@ async function handleNavigation(e) {
   
   e.preventDefault()
   abortAllRequest()
-  history.replaceState({
-    ...(history.state || {}),
-    scroll: {
-      x: window.scrollX,
-      y: window.scrollY
-    }
-  }, "")
+  setZState({ scroll: { x: window.scrollX, y: window.scrollY } })
   const url = element.href
   if(!url) return
   const method = "GET"
@@ -85,7 +80,7 @@ async function handleNavigation(e) {
       method, meta: { url, el: element }
     })
     if(html) {
-      history.pushState(null, "", url)
+      history.pushState({ __z: {} }, "", url)
       swapPage(html)
       requestAnimationFrame(() => window.scrollTo({ top: 0 }))
     }
@@ -101,7 +96,7 @@ async function handlePopState(e) {
     const html = await $fetch(location.href, { method: "GET" })
     if(html) {
       swapPage(html)
-      const scroll = e.state?.scroll
+      const scroll = e.state?.__z?.scroll
       if(!scroll) return
       requestAnimationFrame(() => window.scrollTo({ left: scroll.x, top: scroll.y }))
     }
