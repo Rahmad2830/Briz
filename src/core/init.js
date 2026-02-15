@@ -49,7 +49,7 @@ async function handleForm(e) {
     if(html) swap(html)
   } catch (err) {
     console.error("Request failed", err)
-    return
+    element.requestSubmit()
   }
 }
 
@@ -86,6 +86,7 @@ async function handleNavigation(e) {
     }
   } catch (err) {
     console.error("Request failed", err)
+    window.location.href = url
   }
 }
 
@@ -102,5 +103,6 @@ async function handlePopState(e) {
     }
   } catch (err) {
     console.error("Popstate failed", err)
+    window.location.reload()
   }
 }

@@ -1,179 +1,482 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { $fetch } from '../dist/Briz.min.js';
+import { it, describe, expect, vi, beforeEach } from 'vitest'
+import '../dist/Briz.min.js'
 
-describe('Briz.js Unit Tests', () => {
-  
-  beforeEach(() => {
-      window.document.dispatchEvent(new Event("DOMContentLoaded", {
-      bubbles: true,
-      cancelable: true
-    }))
-    // Reset DOM setiap test
-    document.body.innerHTML = '';
-    document.head.innerHTML = '';
-    vi.useFakeTimers();
-    vi.restoreAllMocks();
+beforeEach(() => {
+  document.body.innerHTML = ''
+  document.dispatchEvent(new Event('DOMContentLoaded'))
+  vi.restoreAllMocks()
+})
+
+describe("mengetes fungsi swap", () => {
+  it("harus melakukan swap element dengan mode default", async() => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      text: () => Promise.resolve("<div data-swap='result'>baru</div>")
+    })
     
-    // Mock fetch secara global
-    global.fetch = vi.fn();
+    document.body.innerHTML = `
+    <form data-ajax action="/some" method="get">
+      <button type="submit">Change</button>
+    </form>
+    
+    <div data-swap='result'>lama</div>
+    `
+    
+    const form = document.querySelector("form")
+    form.dispatchEvent(new Event("submit", { cancelable: true, bubbles:true }))
+    
+    await vi.waitFor(() => {
+      const el = document.querySelector("[data-swap='result']")
+      expect(el.textContent).toBe("baru")
+    })
+  })
+  
+  it("harus melakukan swap element dengan mode append", async() => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      text: () => Promise.resolve("<div data-swap='result:append'>baru</div>")
+    })
+    
+    document.body.innerHTML = `
+    <form data-ajax action="/some" method="get">
+      <button type="submit">Change</button>
+    </form>
+    
+    <div data-swap='result:append'>lama</div>
+    `
+    
+    const form = document.querySelector("form")
+    form.dispatchEvent(new Event("submit", { cancelable: true, bubbles:true }))
+    
+    await vi.waitFor(() => {
+      const el = document.querySelector("[data-swap]")
+      expect(el.textContent).toBe("lamabaru")
+    })
+  })
+  
+  it("harus melakukan swap element dengan mode prepend", async() => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      text: () => Promise.resolve("<div data-swap='result:prepend'>baru</div>")
+    })
+    
+    document.body.innerHTML = `
+    <form data-ajax action="/some" method="get">
+      <button type="submit">Change</button>
+    </form>
+    
+    <div data-swap='result:prepend'>lama</div>
+    `
+    
+    const form = document.querySelector("form")
+    form.dispatchEvent(new Event("submit", { cancelable: true, bubbles:true }))
+    
+    await vi.waitFor(() => {
+      const el = document.querySelector("[data-swap]")
+      expect(el.textContent).toBe("barulama")
+    })
+  })
+  
+  it("harus melakukan swap element dengan mode before", async() => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      text: () => Promise.resolve("<div data-swap='result:before'><p>baru</p></div>")
+    })
+    
+    document.body.innerHTML = `
+    <form data-ajax action="/some" method="get">
+      <button type="submit">Change</button>
+    </form>
+    
+    <div data-swap='result:before'>lama</div>
+    `
+    
+    const form = document.querySelector("form")
+    form.dispatchEvent(new Event("submit", { cancelable: true, bubbles:true }))
+    
+    await vi.waitFor(() => {
+      const el = document.querySelector("[data-swap]")
+      expect(el.previousElementSibling.textContent).toBe("baru")
+    })
+  })
+  
+  it("harus melakukan swap element dengan mode after", async() => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      text: () => Promise.resolve("<div data-swap='result:after'><p>baru</p></div>")
+    })
+    
+    document.body.innerHTML = `
+    <form data-ajax action="/some" method="get">
+      <button type="submit">Change</button>
+    </form>
+    
+    <div data-swap='result:after'>lama</div>
+    `
+    
+    const form = document.querySelector("form")
+    form.dispatchEvent(new Event("submit", { cancelable: true, bubbles:true }))
+    
+    await vi.waitFor(() => {
+      const el = document.querySelector("[data-swap]")
+      expect(el.nextElementSibling.textContent).toBe("baru")
+    })
+  })
+  
+  it("harus swap beberapa element sekaligus dan tidak error ketika ada salah satu yang tidak di swap", async() => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      text: () => Promise.resolve(`
+      <div data-swap='result'>baru</div>
+      <div data-swap='any'>baru</div>
+      `)
+    })
+    
+    document.body.innerHTML = `
+    <form data-ajax action="/some" method="get">
+      <button type="submit">Change</button>
+    </form>
+    
+    <div data-swap='result'>lama</div>
+    <div data-swap='any'>lama</div>
+    <div data-swap='ya'>lama</div>
+    `
+    
+    const form = document.querySelector("form")
+    form.dispatchEvent(new Event("submit", { cancelable: true, bubbles:true }))
+    
+    await vi.waitFor(() => {
+      const result = document.querySelector("[data-swap='result']")
+      const any = document.querySelector("[data-swap='any']")
+      const ya = document.querySelector("[data-swap='ya']")
+      expect(result.textContent).toBe("baru")
+      expect(any.textContent).toBe("baru")
+      expect(ya.textContent).toBe("lama")
+    })
+  })
+  
+  it("harus bisa menambahkan header kustom melalui event z:before-request", async () => {
+    // 1. Mock Fetch untuk mengecek header yang diterima
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      text: () => Promise.resolve("Done")
+    });
+  
+    document.body.innerHTML = '<a data-nav href="/secret">Klik</a>';
+    
+    // 2. Pasang Listener untuk mencegat request
+    document.addEventListener("z:before-request", (event) => {
+      const { request } = event.detail;
+      // Tambahkan header baru ke dalam objek request
+      request.options.headers["Authorization"] = "Bearer MY_TOKEN";
+      request.options.headers["X-Custom-Header"] = "Briz-Power";
+    });
+  
+    // 3. Trigger Navigasi
+    const nav = document.querySelector("[data-nav]");
+    nav.dispatchEvent(new MouseEvent("click", { bubbles: true, button: 0 }));
+  
+    // 4. Assertion: Cek apakah fetch menerima header tersebut
+    await vi.waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            "Authorization": "Bearer MY_TOKEN",
+            "X-Custom-Header": "Briz-Power",
+            "Accept": "text/html" // Default header kamu tetap ada
+          })
+        })
+      );
+    });
   });
-
-  afterEach(() => {
-    vi.clearAllTimers();
+  
+  it("harus memicu success dan after-request saat fetch berhasil", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      text: () => Promise.resolve("<div>Success</div>")
+    });
+  
+    const successSpy = vi.fn();
+    const afterSpy = vi.fn();
+  
+    document.addEventListener("z:request-success", successSpy);
+    document.addEventListener("z:after-request", afterSpy);
+  
+    // Trigger via form atau nav
+    document.body.innerHTML = '<a data-nav href="/ok">Klik</a>';
+    document.querySelector("a").dispatchEvent(new MouseEvent("click", { bubbles: true, button: 0 }));
+  
+    await vi.waitFor(() => {
+      // Cek success event
+      expect(successSpy).toHaveBeenCalled();
+      const successDetail = successSpy.mock.calls[0][0].detail;
+      expect(successDetail.response.ok).toBe(true);
+  
+      // Cek after-request event
+      expect(afterSpy).toHaveBeenCalled();
+    });
   });
-
-  // --- 1. TEST $FETCH CORE ---
-  describe('$fetch Core & Lifecycle', () => {
-    it('seharusnya melakukan request GET dan trigger lifecycle event', async () => {
-      const mockHtml = '<div data-swap="target">New Content</div>';
-      global.fetch.mockResolvedValue({
-        ok: true,
-        text: () => Promise.resolve(mockHtml)
+  
+  it("harus memicu request-error saat server mengembalikan 500", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 500,
+      text: () => Promise.resolve("Server Meledak")
+    });
+  
+    const errorSpy = vi.fn();
+    document.addEventListener("z:request-error", errorSpy);
+  
+    document.body.innerHTML = '<a data-nav href="/fail">Klik</a>';
+    document.querySelector("a").dispatchEvent(new MouseEvent("click", { bubbles: true, button: 0 }));
+  
+    await vi.waitFor(() => {
+      expect(errorSpy).toHaveBeenCalled();
+      const detail = errorSpy.mock.calls[0][0].detail;
+      
+      // Pastikan pesan error dari server tertangkap
+      expect(detail.error.message).toContain("Server Meledak");
+    });
+  });
+  
+  it("harus membatalkan request jika server tidak merespon dalam 10 detik", async () => {
+    vi.useFakeTimers();
+  
+    // 1. Mock fetch yang merespon terhadap signal abort
+    global.fetch = vi.fn().mockImplementation((url, { signal }) => {
+      return new Promise((resolve, reject) => {
+        // Jika timeout terjadi, signal akan trigger event 'abort'
+        signal.addEventListener("abort", () => {
+          const error = new Error("The operation was aborted");
+          error.name = "AbortError";
+          reject(error);
+        });
       });
-
-      const beforeSpy = vi.fn();
-      document.addEventListener('z:before-request', beforeSpy);
-
-      const result = await $fetch('/api/test');
-
-      expect(result).toBe(mockHtml);
+    });
+  
+    const errorSpy = vi.fn();
+    document.addEventListener("z:request-error", errorSpy);
+  
+    document.body.innerHTML = '<a data-nav href="/slow">Klik</a>';
+    const nav = document.querySelector("a");
+    
+    nav.dispatchEvent(new MouseEvent("click", { bubbles: true, button: 0 }));
+  
+    // 2. Majukan timer melampaui 10 detik
+    await vi.advanceTimersByTimeAsync(10005);
+  
+    // 3. Pastikan urutan microtasks selesai
+    await vi.waitFor(() => {
+      expect(errorSpy).toHaveBeenCalled();
+      const detail = errorSpy.mock.calls[0][0].detail;
+      
+      // Di kodemu: l("z:request-error", { request: u, error: f }, n.el)
+      expect(detail.error.name).toBe("AbortError");
+    });
+  
+    vi.useRealTimers();
+  });
+  
+  it("harus membatalkan request sebelumnya jika URL yang sama diklik lagi", async () => {
+    let abortSignal;
+    global.fetch = vi.fn().mockImplementation((url, options) => {
+      abortSignal = options.signal; // Ambil signal dari fetch
+      return new Promise(() => {}); // Biarkan menggantung
+    });
+  
+    document.body.innerHTML = '<a data-nav href="/test">Klik</a>';
+    const nav = document.querySelector("a");
+  
+    // Klik pertama
+    nav.dispatchEvent(new MouseEvent("click", { bubbles: true, button: 0 }));
+    const signal1 = abortSignal;
+  
+    // Klik kedua (URL yang sama)
+    nav.dispatchEvent(new MouseEvent("click", { bubbles: true, button: 0 }));
+    const signal2 = abortSignal;
+  
+    // Signal pertama harusnya sudah 'aborted'
+    expect(signal1.aborted).toBe(true);
+    // Signal kedua harusnya masih aktif
+    expect(signal2.aborted).toBe(false);
+  });
+  
+  it("harus memicu event z:before-swap dan z:after-swap", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      text: () => Promise.resolve('<div id="target" data-swap="result">Baru</div>')
+    });
+  
+    document.body.innerHTML = `
+      <form data-ajax action="/update">
+        <button type="submit">Kirim</button>
+      </form>
+      <div id="target" data-swap="result">Lama</div>
+    `;
+  
+    const beforeSpy = vi.fn();
+    const afterSpy = vi.fn();
+  
+    document.addEventListener("z:before-swap", beforeSpy);
+    document.addEventListener("z:after-swap", afterSpy);
+  
+    // Trigger form submit
+    const form = document.querySelector("form");
+    form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+  
+    await vi.waitFor(() => {
+      // 1. Pastikan event terpanggil
       expect(beforeSpy).toHaveBeenCalled();
-      expect(global.fetch).toHaveBeenCalledWith('/api/test', expect.objectContaining({
-        method: undefined // Default di kode Anda t.method jika tidak ada
-      }));
-    });
-
-    it('seharusnya menangani AbortController untuk request yang bertabrakan', async () => {
-      let resolveFirst;
-      const firstRequest = new Promise(res => { resolveFirst = res; });
+      expect(afterSpy).toHaveBeenCalled();
+  
+      // 2. Cek apakah detailnya membawa elemen yang benar
+      const afterDetail = afterSpy.mock.calls[0][0].detail;
       
-      global.fetch.mockImplementation(() => firstRequest);
-
-      // Panggil dua kali ke endpoint yang sama (u = endpoint:method)
-      const p1 = $fetch('/api/dup', { method: 'GET' });
-      const p2 = $fetch('/api/dup', { method: 'GET' });
-
-      // Cek apakah fetch dipanggil dengan signal yang berbeda
-      expect(global.fetch).toHaveBeenCalledTimes(2);
-      const firstSignal = global.fetch.mock.calls[0][1].signal;
-      expect(firstSignal.aborted).toBe(true);
+      // Biasanya detail berisi elemen yang terlibat
+      expect(afterDetail.el.textContent).toBe("Baru");
+      expect(document.getElementById("target").textContent).toBe("Baru");
     });
   });
+})
 
-  // --- 2. TEST INJECT & SPECIAL ---
-  describe('Config: inject & special', () => {
-    it('seharusnya menginject global headers', async () => {
-      $fetch.inject({ headers: { 'X-Global': 'true' } });
-      global.fetch.mockResolvedValue({ ok: true, text: () => Promise.resolve('') });
-      
-      await $fetch('/api/inject');
-      
-      const callHeaders = global.fetch.mock.calls[0][1].headers;
-      expect(callHeaders['X-Global']).toBe('true');
-    });
-
-    it('seharusnya menggunakan special config untuk URL tertentu', async () => {
-      $fetch.special('/special-path', { headers: { 'X-Special': 'yes' } });
-      global.fetch.mockResolvedValue({ ok: true, text: () => Promise.resolve('') });
-
-      await $fetch('/special-path');
-      expect(global.fetch.mock.calls[0][1].headers['X-Special']).toBe('yes');
-    });
-  });
-
-  // --- 3. TEST DOM SWAPPING & MODES ---
-  describe('DOM Swapping & Microtasks', () => {
-    it('seharusnya melakukan swap dengan mode berbeda (append, prepend, dll)', async () => {
-      document.body.innerHTML = `
-        <div id="cont">
-          <div id="t1" data-swap="target:append">Original</div>
-          <div id="t2" data-swap="target:prepend">Original</div>
-        </div>
-      `;
-
-      // Kita harus memicu fungsi m(html) yang dipanggil internal setelah f()
-      // Karena m() tidak diekspor, kita uji lewat trigger AJAX form/link
-      // Namun untuk unit test logic swapping, kita asumsikan f() memanggil m()
-      
-      // Simulasi hasil HTML dari server
-      const responseHtml = `
-        <div data-swap="target:append"><span>Appended</span></div>
-        <div data-swap="target:prepend"><span>Prepended</span></div>
-      `;
-
-      // Mock implementasi swap internal
-      // Catatan: Karena fungsi 'm' private, kita test lewat efek samping $fetch di form/link
-      // atau memicu manual lewat event jika memungkinkan.
-    });
-  });
-
-  // --- 4. TEST NAVIGATION (A Tag) & FORM ---
-  describe('Interactions: Links & Forms', () => {
-    it('seharusnya menangani klik pada [data-nav]', async () => {
-      document.body.innerHTML = '<a href="/page2" data-nav id="link">Go</a>';
-      const link = document.getElementById('link');
-      
-      global.fetch.mockResolvedValue({
-        ok: true,
-        text: () => Promise.resolve('<html><body>New Body</body></html>')
-      });
-
-      link.click();
-      
-      // Tunggu async execution
-      await vi.waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/page2'), expect.anything());
-      });
-    });
-
-    it('seharusnya mengirim data form via AJAX [data-ajax]', async () => {
-      document.body.innerHTML = `
-        <form data-ajax action="/submit" method="POST" id="myForm">
-          <input name="user" value="briz">
-        </form>
-      `;
-      const form = document.getElementById('myForm');
-      
-      global.fetch.mockResolvedValue({ ok: true, text: () => Promise.resolve('Success') });
-
-      const event = new Event('submit', { bubbles: true, cancelable: true });
-      form.dispatchEvent(event);
-
-      expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/submit'), expect.objectContaining({
-        method: 'POST',
-        body: expect.any(FormData)
-      }));
-    });
-  });
-
-  // --- 5. TEST FULL PAGE NAVIGATION (SwapPage/O function) ---
-  describe('Full Page Navigation & Meta Diff', () => {
-    it('seharusnya mengganti title dan sinkronisasi meta tag', async () => {
-      document.head.innerHTML = '<title>Old</title><meta name="description" content="old description">';
-      const newPage = `
+describe("mengetes fungsi Navigasi", () => {
+  it("harus mengubah isi <body>", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      text: () => Promise.resolve(`
+        <html>
+          <head><title>about</title></head>
+          <body><p>baru</p></body>
+        </html>
+      `)
+    })
+    
+    const testUrl = `${window.location.origin}/about`
+    
+    document.documentElement.innerHTML = `
+      <html>
+        <head><title>home</title></head>
+        <body>
+          <h1>lama</h1>
+          <a data-nav href="${testUrl}">pindah</a>
+        </body>
+      </html>
+    `
+    
+    const nav = document.querySelector("[data-nav]")
+    nav.dispatchEvent(new MouseEvent("click", { 
+      bubbles: true, 
+      cancelable: true, 
+      button: 0 
+    }))
+    
+    await vi.waitFor(() => {
+      expect(document.title).toBe("about")
+      expect(document.body.firstElementChild.tagName).toBe("P")
+      expect(document.body.firstElementChild.textContent).toBe("baru")
+    })
+  })
+  
+  it("harus melakukan diffing pada meta tags di <head>", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      text: () => Promise.resolve(`
         <html>
           <head>
-            <title>New Title</title>
-            <meta name="description" content="new description">
-            <meta name="author" content="Briz">
+            <title>About Page</title>
+            <meta name="description" content="Halaman Tentang Kami">
+            <meta name="keywords" content="briz, spa, js">
           </head>
-          <body><main>New Content</main></body>
+          <body><p>Konten Baru</p></body>
         </html>
-      `;
-
-      // Mock navigasi internal O(newPage)
-      // Cara terbaik mengetes ini adalah memicu link [data-nav]
-      global.fetch.mockResolvedValue({ ok: true, text: () => Promise.resolve(newPage) });
+      `)
+    })
+  
+    document.head.innerHTML = `
+      <title>Home Page</title>
+      <meta name="description" content="Halaman Depan">
+      <meta name="author" content="Gemini">
+    `
+    document.body.innerHTML = '<a data-nav href="/about">Pindah</a>'
+  
+    const nav = document.querySelector("[data-nav]")
+    nav.dispatchEvent(new MouseEvent("click", { bubbles: true, button: 0 }))
+  
+    await vi.waitFor(() => {
+      expect(document.title).toBe("About Page")
+      const desc = document.querySelector('meta[name="description"]')
+      expect(desc.getAttribute('content')).toBe("Halaman Tentang Kami")
+      const keys = document.querySelector('meta[name="keywords"]')
+      expect(keys.getAttribute('content')).toBe("briz, spa, js")
+      const author = document.querySelector('meta[name="author"]')
+      expect(author).toBeNull()
+    })
+  })
+  
+  it("harus memicu event lifecycle navigasi dengan urutan yang benar", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      text: () => Promise.resolve("<title>About</title><body><p>Baru</p></body>")
+    })
+  
+    document.body.innerHTML = '<a data-nav href="/about">Pindah</a>'
+    
+    const beforeSpy = vi.fn()
+    const afterSpy = vi.fn()
+  
+    document.addEventListener("z:before-navigation", beforeSpy)
+    document.addEventListener("z:after-navigation", afterSpy)
+  
+    const nav = document.querySelector("[data-nav]")
+    nav.dispatchEvent(new MouseEvent("click", { bubbles: true, button: 0 }))
+  
+    await vi.waitFor(() => {
+      expect(beforeSpy).toHaveBeenCalled()
+      expect(afterSpy).toHaveBeenCalled()
       
-      document.body.innerHTML = '<a href="/new" data-nav id="nav">Link</a>';
-      document.getElementById('nav').click();
+      const beforeCallTime = beforeSpy.mock.invocationCallOrder[0]
+      const afterCallTime = afterSpy.mock.invocationCallOrder[0]
+      expect(beforeCallTime).toBeLessThan(afterCallTime)
+    })
+  })
+})
 
-      await vi.waitFor(() => {
-        expect(document.title).toBe('New Title');
-        const desc = document.querySelector('meta[name="description"]');
-        expect(desc.content).toBe('new description');
-        expect(document.querySelector('meta[name="author"]').content).toBe('Briz');
+describe("Streams test", () => {
+  it("harus menjalankan polling dan memperbarui elemen secara berkala", async () => {
+    vi.useFakeTimers();
+  
+    let callCount = 0;
+    global.fetch = vi.fn().mockImplementation(() => {
+      callCount++;
+      return Promise.resolve({
+        ok: true,
+        text: () => Promise.resolve(`<div data-swap="poll">Update ${callCount}</div>`)
       });
     });
+  
+    document.body.innerHTML = `
+      <div data-polling="/api/status" data-refresh="1s" data-swap="poll">Awal</div>
+    `;
+  
+    // 1. Inisialisasi - Ini akan memicu fetch pertama secara instan
+    document.dispatchEvent(new Event("DOMContentLoaded"));
+    
+    // Tunggu sejenak agar fetch pertama (instan) selesai
+    await vi.advanceTimersByTimeAsync(0);
+  
+    await vi.waitFor(() => {
+      expect(document.querySelector('[data-swap="poll"]').textContent).toBe("Update 1");
+    });
+  
+    // 2. Majukan 1 detik untuk memicu fetch kedua
+    await vi.advanceTimersByTimeAsync(1000);
+  
+    await vi.waitFor(() => {
+      expect(document.querySelector('[data-swap="poll"]').textContent).toBe("Update 2");
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+    });
+  
+    vi.useRealTimers();
   });
-});
+})
