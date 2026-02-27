@@ -14,6 +14,13 @@ export async function $fetch(url, params = {}) {
   const controller = new AbortController()
   controllers.set(key, controller)
   const hasBody = method !== "GET" && body !== undefined
+  const manualRawReqTimeout = meta.el.dataset.timeout || "10s"
+  const match = manualRawReqTimeout.match(/^(\d+(\.\d+)?)s$/)
+  if(!match) {
+    console.error(`[Leaf.js] Invalid timeout format: "${manualRawReqTimeout}". Format must be a number followed by 's'. Request aborted.`)
+    return
+  }
+  const manualReqTimeout = parseFloat(match[1]) * 1000
   
   const request = {
     url,
@@ -46,7 +53,7 @@ export async function $fetch(url, params = {}) {
   try {
     requestTimeout = setTimeout(() => {
       controller.abort()
-    }, 10000)
+    }, manualReqTimeout)
     const res = await fetch(request.url, request.options)
     if(!res.ok) throw new Error(await res.text())
     

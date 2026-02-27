@@ -16,10 +16,15 @@ export function startPolling(element) {
   if(!endpoint) throw new Error("[data-polling] missing required attribute: data-polling")
   const rawInterval = element.dataset.refresh || "5s"
   const match = rawInterval.match(/^(\d+(\.\d+)?)s$/)
-  if(!match) return
+  if(!match) {
+    console.error(`[Leaf.js] Invalid timeout format: "${rawInterval}". Format must be a number followed by 's'. Request aborted.`)
+    return
+  }
   const interval = parseFloat(match[1]) * 1000
   
   async function poll() {
+    if(!active_elements.has(element)) return
+    
     try {
       const html = await $fetch(endpoint, { method: "GET" })
       if(html) swap(html)
@@ -30,8 +35,8 @@ export function startPolling(element) {
     polling_controller.set(element, timeoutId)
   }
 
-  poll()
   active_elements.add(element)
+  poll()
 }
 
 export function visibilityHandler() {
