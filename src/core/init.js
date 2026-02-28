@@ -9,6 +9,7 @@ let initialized = false
 export function init() {
   if(initialized) return
   initialized = true
+  if(!history.state?.__z) setZState({ scroll: { x: window.scrollX, y: window.scrollY } })
   
   history.scrollRestoration = "manual"
   document.addEventListener("click", handleNavigation)
@@ -91,13 +92,15 @@ async function handleNavigation(e) {
 }
 
 async function handlePopState(e) {
+  const state = e.state?.__z
+  if(!state) return
   abortAllRequest()
   
   try {
     const html = await $fetch(location.href, { method: "GET" })
     if(html) {
       swapPage(html)
-      const scroll = e.state?.__z?.scroll
+      const scroll = state.scroll
       if(!scroll) return
       requestAnimationFrame(() => window.scrollTo({ left: scroll.x, top: scroll.y }))
     }
