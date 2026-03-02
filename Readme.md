@@ -17,3 +17,8 @@ Briz.js is a lightweight JavaScript library for building dynamic, server-driven 
 For full guides, examples, and API reference, visit the official documentation:
 
 👉 https://withcable.pages.dev
+
+**☕ Buy me a Coffee**
+
+I really appreciate your support
+[![Buy me a Coffee](assets/support_me_on_kofi_beige.png)](https://ko-fi.com/rahmatnurhidayat)
