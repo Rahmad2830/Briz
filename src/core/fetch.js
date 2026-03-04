@@ -17,7 +17,7 @@ export async function $fetch(url, params = {}) {
   const manualRawReqTimeout = meta.el?.dataset?.timeout || "10s"
   const match = manualRawReqTimeout.match(/^(\d+(\.\d+)?)s$/)
   if(!match) {
-    console.error(`[Leaf.js] Invalid timeout format: "${manualRawReqTimeout}". Format must be a number followed by 's'. Request aborted.`)
+    console.error(`[Briz.js] Invalid timeout format: "${manualRawReqTimeout}". Format must be a number followed by 's'. Request aborted.`)
     return
   }
   const manualReqTimeout = parseFloat(match[1]) * 1000

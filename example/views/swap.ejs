@@ -1,0 +1,16 @@
+<%- include("layouts/headers") %>
+
+<div class="container py-3">
+  <h1>Basic Swap</h1>
+  <p>Below is an example when you press the Greet button, it will make a request to the server and Briz will replace "....waiting for server response" with a response from the server.</p>
+  
+  <form data-ajax action="/partials/swap" method="get" class="mt-3">
+    <button type="submit" class="btn btn-primary">Greet</button>
+  </form>
+  
+  <div data-swap="hello" class="mt-3">
+    ....waiting for server response
+  </div>
+</div>
+
+<%- include("layouts/footers") %>

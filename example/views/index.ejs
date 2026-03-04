@@ -1,0 +1,59 @@
+<%- include("layouts/headers") %>
+
+<div class="container py-3">
+  <h1>Welcome to Briz example</h1>
+  <p>You can choose the example below, and notice how the page changes without reloading.</p>
+  
+  <ol class="list-group-numbered">
+    <li class="list-group-item d-flex justify-content-between align-items-start">
+      <div class="ms-2 me-auto">
+        <div class="fw-bold">
+          <a data-nav href="/swap">Basic Swap</a>
+        </div>
+        This is the most fundamental feature. It shows how to change the contents of a div element without refreshing the page.
+      </div>
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-start">
+      <div class="ms-2 me-auto">
+        <div class="fw-bold">
+          <a data-nav href="/polling">Auto Polling</a>
+        </div>
+        Shows elements that can update themselves automatically.
+      </div>
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-start">
+      <div class="ms-2 me-auto">
+        <div class="fw-bold">
+          <a data-nav href="/event">Inject headers for request</a>
+        </div>
+        Intercept requests and add headers before the request begins. Applies to all requests.
+      </div>
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-start">
+      <div class="ms-2 me-auto">
+        <div class="fw-bold">
+          <a data-nav href="/sse">Realtime request using SSE</a>
+        </div>
+        Real time one-way data updates from server to client using SSE.
+      </div>
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-start">
+      <div class="ms-2 me-auto">
+        <div class="fw-bold">
+          <a data-nav href="/loading">Shows a loading spinner during request</a>
+        </div>
+        Make UX good with loading action for a request.
+      </div>
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-start">
+      <div class="ms-2 me-auto">
+        <div class="fw-bold">
+          <a data-nav href="/multi_swap">Update many element in the DOM</a>
+        </div>
+        Swap multiple elements at once in a single server response.
+      </div>
+    </li>
+  </ol>
+</div>
+
+<%- include("layouts/footers") %>

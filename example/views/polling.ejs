@@ -1,0 +1,13 @@
+<%- include("layouts/headers") %>
+
+<div class="container py-3">
+  <h1>Auto Polling</h1>
+  <p>Below is shown a real-time update using polling, namely the client requests the server repeatedly at a specified interval.</p>
+  
+  <div data-polling="/partials/polling" data-refresh="1s">
+  </div>
+  
+  <h1 data-swap="counter"><%= count %></h1>
+</div>
+
+<%- include("layouts/footers") %>

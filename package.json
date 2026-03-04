@@ -1,11 +1,17 @@
 {
+  "type": "module",
   "devDependencies": {
     "esbuild": "^0.27.3",
     "jsdom": "^28.0.0",
     "vitest": "^4.0.18"
   },
   "scripts": {
+    "dev": "node --watch example/index.js",
     "build": "esbuild src/index.js --bundle --minify --format=esm --outfile=dist/Briz.min.js",
     "test": "vitest"
+  },
+  "dependencies": {
+    "ejs": "^4.0.1",
+    "express": "^5.2.1"
   }
 }
