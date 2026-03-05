@@ -1,7 +1,7 @@
 # Briz.js
 
-<div style="display: flex;justify-content: center;">
-    <img src="assets/Briz.webp" width="300" alt="Briz-logo" />
+<div style="display: flex; justify-content: center;">
+  <img src="assets/Briz.webp" width="300" alt="Briz-logo" style="display: block; margin: 0 auto;" />
 </div>
 
 ![Build-Passing](https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge)
