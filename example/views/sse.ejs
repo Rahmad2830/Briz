@@ -1,0 +1,15 @@
+<%- include("layouts/headers") %>
+
+<div class="container py-3">
+  <h1>Realtime Using SSE</h1>
+  <p>Below is a simple demo of a live counter update using SSE. When you stop localhost and restart it, SSE will automatically reconnect.</p>
+  
+  <div data-sse="/partials/sse" data-event="counter-update">
+    <h1 data-swap="counter">
+      ...Waiting for response
+    </h1>
+  </div>
+  
+</div>
+
+<%- include("layouts/footers") %>

@@ -65,6 +65,14 @@ git remote add upstream https://github.com/brizjs/briz.js.git
 npm install
 ```
 
+### Run the Development Server
+
+```bash
+npm run dev
+```
+
+This will start a local server and watch for file changes. Open the address shown in your terminal to see the demo page.
+
 ---
 
 ## Project Structure

@@ -1,0 +1,18 @@
+<%- include("layouts/headers") %>
+
+<div class="container py-3">
+  <h1>Inject headers for all request</h1>
+  <p>Used when you want to send something like custom header, csrf token, cache etc. here I will give an example with csrf token, and you can see it in your terminal log. It will add cistom headers to all request. See that js file in the public folder? That's an event that intercepts and adds a custom header globally. Why not in the body? Because this navigation without reloading replaces the body's innerHTML, so scripts inside the body won't be executed.</p>
+  
+  <form data-ajax
+    data-swap="result"
+    action="/partials/event"
+    method="post"
+    class="mt-3"
+  >
+    <input type="text" name="name" class="form-control" placeholder="Your Name or whatever..." required/>
+    <button type="submit" class="btn btn-primary mt-3">Submit</button>
+  </form>
+</div>
+
+<%- include("layouts/footers") %>

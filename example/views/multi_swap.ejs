@@ -1,0 +1,24 @@
+<%- include("layouts/headers") %>
+
+<div class="container py-3">
+  <h1>Multi Swap</h1>
+  <p>Below is an example of swapping multiple elements at once. It's easy: simply assign several elements the data-swap attribute, then the server response also uses the data-swap attribute with a name that matches the client's request.</p>
+  
+  <form data-ajax action="/partials/multi_swap" method="get" class="mt-3">
+    <button type="submit" class="btn btn-primary">Get Response</button>
+  </form>
+  
+  <div data-swap="hello" class="mt-3">
+    ....waiting for server response
+  </div>
+  
+  <div data-swap="cart" class="mt-3">
+    ....waiting for server response
+  </div>
+  
+  <div data-swap="any" class="mt-3">
+    ....waiting for server response
+  </div>
+</div>
+
+<%- include("layouts/footers") %>
