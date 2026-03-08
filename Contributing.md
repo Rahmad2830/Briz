@@ -52,11 +52,11 @@ The library is built around several core capabilities:
 
 ```bash
 # Fork the repository on GitHub, then clone your fork
-git clone https://github.com/<your-username>/briz.js.git
-cd briz.js
+git clone https://github.com/Rahmad2830/Briz.git
+cd Briz
 
 # Add the upstream remote to keep your fork in sync
-git remote add upstream https://github.com/brizjs/briz.js.git
+git remote add upstream https://github.com/Rahmad2830/Briz.git
 ```
 
 ### Install Dependencies
@@ -78,7 +78,7 @@ This will start a local server and watch for file changes. Open the address show
 ## Project Structure
 
 ```
-briz.js/
+Briz/
 ├── src/
 │   ├── index.js              # Entry point — bootstraps the library on DOMContentLoaded
 │   ├── core/
