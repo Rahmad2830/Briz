@@ -14,3 +14,12 @@ export function setZState(partial) {
   const z = { ...getZState(), ...partial }
   history.replaceState({ ...current, [STATE_KEY]: z }, "", location.href)
 }
+
+export function isInternal(url) {
+  try {
+    const target = new URL(url, location.href);
+    return target.host === location.host;
+  } catch (e) {
+    return false;
+  }
+}
