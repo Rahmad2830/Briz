@@ -58,7 +58,8 @@ async function handleForm(e) {
 
 function handlePointerDown(e) {
   const link = e.target.closest("a[data-nav]")
-  if(link && isInternal(link.href)) prefetch(link.href)
+  if(!link || link.hasAttribute("data-no-prefetch")) return
+  if(isInternal(link.href)) prefetch(link.href)
 }
 
 async function handleNavigation(e) {

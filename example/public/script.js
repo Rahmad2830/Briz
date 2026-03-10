@@ -4,7 +4,7 @@ document.addEventListener("z:before-request", (event) => {
   const request = event.detail.request
   
   //if request method are POST
-  if(request.options.method === "POST") {
+  if(request.options.method) {
     //grab csrf_token from meta tag then use it
     const csrf_token = document.querySelector("meta[name='csrf_token']")?.getAttribute("content")
     
@@ -17,6 +17,8 @@ document.addEventListener("z:before-request", (event) => {
   
   //Toggle loading before request action
   const element = request.meta.el
+  if(!element) return
+
   if(element?.id === "form") {
     const loading = document.querySelector("#spinner")
     loading.classList.remove("d-none")
@@ -28,9 +30,11 @@ document.addEventListener("z:after-request", (event) => {
   
   //element after swap
   const element = event.detail.request.meta?.el
+  if(!element) return
   
   if(element.id === "form") {
     const loading = document.querySelector("#spinner")
     loading.classList.add("d-none")
   }
 })
+
