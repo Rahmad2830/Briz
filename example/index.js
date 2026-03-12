@@ -104,6 +104,22 @@ app.get("/partials/multi_swap", (req, res) => {
   res.render("partials/multi_swap")
 })
 
+//redirect
+app.get("/redirect", (req, res) => {
+  res.render("redirect")
+})
+app.post("/partials/redirect", (req, res) => {
+  res.redirect("/")
+})
+
+//transition
+app.get("/transition", (req, res) => {
+  res.render("transition")
+})
+app.get("/partials/transition", (req, res) => {
+  res.render("partials/transition")
+})
+
 app.listen(3000, () => {
   console.log('Demo Briz.js running on http://localhost:3000')
 })
