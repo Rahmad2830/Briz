@@ -56,6 +56,10 @@ export async function $fetch(url, params = {}) {
     }, manualReqTimeout)
     const res = await fetch(request.url, request.options)
     if(!res.ok) throw new Error(await res.text())
+    if(res.redirected) {
+      window.location.href = res.url
+      return
+    }
     
     dispatchZEvent("z:request-success", { request, response: res }, meta.el)
     
