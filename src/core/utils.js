@@ -23,3 +23,13 @@ export function isInternal(url) {
     return false;
   }
 }
+
+export function withTransition(haveTransition = false, swapFn) {
+  if(!document.startViewTransition || !haveTransition) {
+    swapFn()
+    return
+  }
+
+  document.startViewTransition(() => swapFn())
+}
+

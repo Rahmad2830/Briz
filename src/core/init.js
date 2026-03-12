@@ -1,5 +1,5 @@
 import { $fetch, abortAllRequest } from "./fetch.js"
-import { setZState, isInternal } from "./utils.js"
+import { setZState, isInternal, withTransition } from "./utils.js"
 import { swap, swapPage } from "./swap.js"
 import { observer } from "../streams/mutation_observer.js"
 import { visibilityHandler } from "../streams/polling/polling.js"
@@ -32,6 +32,7 @@ async function handleForm(e) {
   let url = element.action
   if(!url) return
   let method = (element.method || "GET").toUpperCase()
+  const hasTransition = element.hasAttribute("data-transition")
   
   if(method === "GET") {
     const u = new URL(element.action, location.href)
@@ -49,7 +50,7 @@ async function handleForm(e) {
       method, body: bodyData,
       meta: { url, method, el: element }
     })
-    if(html) swap(html)
+    withTransition(hasTransition, () => swap(html))
   } catch (err) {
     console.error("Request failed", err)
     element.requestSubmit()
@@ -75,6 +76,7 @@ async function handleNavigation(e) {
   if (element.target === "_blank") return
   if (element.hasAttribute("download")) return
   if (element.rel?.includes("external")) return
+  const hasTransition = element.hasAttribute("data-transition")
   
   e.preventDefault()
   abortAllRequest()

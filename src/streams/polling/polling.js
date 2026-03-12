@@ -17,7 +17,7 @@ export function startPolling(element) {
   const rawInterval = element.dataset.refresh || "5s"
   const match = rawInterval.match(/^(\d+(\.\d+)?)s$/)
   if(!match) {
-    console.error(`[Leaf.js] Invalid timeout format: "${rawInterval}". Format must be a number followed by 's'. Request aborted.`)
+    console.error(`[Briz.js] Invalid timeout format: "${rawInterval}". Format must be a number followed by 's'. Request aborted.`)
     return
   }
   const interval = parseFloat(match[1]) * 1000
