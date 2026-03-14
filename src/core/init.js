@@ -1,9 +1,8 @@
 import { $fetch, abortAllRequest } from "./fetch.js"
-import { setZState, isInternal, withTransition } from "./utils.js"
+import { setZState, withTransition } from "./utils.js"
 import { swap, swapPage } from "./swap.js"
 import { observer } from "../streams/mutation_observer.js"
 import { visibilityHandler } from "../streams/polling/polling.js"
-import { prefetch, PAGES_CACHE } from "./prefetch.js"
 
 let initialized = false
 
@@ -17,7 +16,6 @@ export function init() {
   document.addEventListener("submit", handleForm)
   window.addEventListener("popstate", handlePopState)
   document.addEventListener("visibilitychange", visibilityHandler)
-  document.addEventListener("pointerdown", handlePointerDown)
   observer.observe(document.body, {
     childList: true, subtree: true
   })
@@ -57,12 +55,6 @@ async function handleForm(e) {
   }
 }
 
-function handlePointerDown(e) {
-  const link = e.target.closest("a[data-nav]")
-  if(!link || link.hasAttribute("data-no-prefetch")) return
-  if(isInternal(link.href)) prefetch(link.href)
-}
-
 async function handleNavigation(e) {
   if (
     e.metaKey || 
@@ -80,21 +72,20 @@ async function handleNavigation(e) {
   const hasTransition = element.hasAttribute("data-transition")
 
   e.preventDefault()
+  abortAllRequest()
   setZState({ scroll: { x: window.scrollX, y: window.scrollY } })
   const url = element.href
   if(!url) return
   
   try {
-    const html = PAGES_CACHE.has(url) ?
-      await PAGES_CACHE.get(url)?.promise :
-      await prefetch(url)
-    abortAllRequest()
-
+    const html = await $fetch(url, {
+      method: "GET",
+      meta: { el: element, url }
+    })
     if(html) {
       history.pushState({ __z: {} }, "", url)
       swapPage(html)
       requestAnimationFrame(() => window.scrollTo({ top: 0 }))
-      PAGES_CACHE.delete(url)
     }
   } catch (err) {
     console.error("Request failed", err)
