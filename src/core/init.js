@@ -78,15 +78,18 @@ async function handleNavigation(e) {
   if (element.hasAttribute("download")) return
   if (element.rel?.includes("external")) return
   const hasTransition = element.hasAttribute("data-transition")
-  
+
   e.preventDefault()
-  abortAllRequest()
   setZState({ scroll: { x: window.scrollX, y: window.scrollY } })
   const url = element.href
   if(!url) return
   
   try {
-    const html = await prefetch(url)
+    const html = PAGES_CACHE.has(url) ?
+      await PAGES_CACHE.get(url)?.promise :
+      await prefetch(url)
+    abortAllRequest()
+
     if(html) {
       history.pushState({ __z: {} }, "", url)
       swapPage(html)

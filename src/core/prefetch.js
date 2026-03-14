@@ -7,7 +7,25 @@ export function prefetch(url) {
   }
 
   const promise = $fetch(url, { method: "GET" })
-  PAGES_CACHE.set(url, { promise })
-  setTimeout(() => PAGES_CACHE.delete(url), 15000)
+    .then(res => {
+      if(res === undefined) {
+        PAGES_CACHE.delete(url)
+        return
+      }
+
+      setTimeout(() => {
+        if(PAGES_CACHE.get(url)?.settled) PAGES_CACHE.delete(url)
+      }, 15000)
+      return res
+    })
+    .catch(err => {
+      PAGES_CACHE.delete(url)
+      throw err
+    })
+    .finally(() => {
+      const entry = PAGES_CACHE.get(url)
+      if(entry) entry.settled = true
+    })
+  PAGES_CACHE.set(url, { promise, settled: false })
   return promise
 }
