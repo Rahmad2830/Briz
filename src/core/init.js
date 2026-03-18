@@ -69,7 +69,6 @@ async function handleNavigation(e) {
   if (element.target === "_blank") return
   if (element.hasAttribute("download")) return
   if (element.rel?.includes("external")) return
-  const hasTransition = element.hasAttribute("data-transition")
 
   e.preventDefault()
   abortAllRequest()
