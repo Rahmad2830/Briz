@@ -25,27 +25,22 @@ app.get('/', (req, res) => {
 
 //basic swap
 app.get('/swap', (req, res) => {
-  res.render('swap')
-})
-app.get('/partials/swap', (req, res) => {
-  res.render('partials/swap')
+  const rand = Math.random()
+  res.render('swap', { rand })
 })
 
 let count = 0
 //polling
 app.get('/polling', (req, res) => {
-  res.render('polling', { count })
-})
-app.get('/partials/polling', (req, res) => {
   count++
-  res.render('partials/polling', { count })
+  res.render('polling', { count })
 })
 
 //Inject header
 app.get("/event", (req, res) => {
   res.render("event")
 })
-app.post("/partials/event", forms.none(), (req, res) => {
+app.post("/event", forms.none(), (req, res) => {
   const token = req.headers["x-csrf-token"]
   
   console.log(token)

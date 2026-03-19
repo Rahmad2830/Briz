@@ -1,25 +1,15 @@
-import { dispatchZEvent } from "./utils.js"
 import { enqueueSwapOps } from "./batching.js"
 
-export function swap(html) {
-  const element = document.querySelectorAll("[data-swap]")
-  if(!element.length) return
-  const fragment = document.createRange().createContextualFragment(html)
-  const ops = []
-  
-  element.forEach(el => {
-    const value = el.getAttribute("data-swap")
-    const [key, mode] = value.split(":").map(p => p.trim())
-    const node = fragment.querySelector(`[data-swap="${value}"]`)
-    if(!node) return
-    
-    ops.push({ el, node, mode })
-  })
-  if(ops.length) enqueueSwapOps(ops)
-}
-
-export function swapPage(html) {
+export function performSwap(html) {
   const doc = new DOMParser().parseFromString(html, "text/html")
+  
+  const body = document.body
+  const bodyResp = doc.body
+  const hasSwap = body.querySelectorAll("[data-swap]")
+  const titleResp = doc.title
+  const hasScript = Array.from(bodyResp.querySelectorAll("script"))
+  hasScript.forEach(s => s.remove())
+  const bodyFrag = Array.from(bodyResp.childNodes)
   
   //diff meta
   function getMetaKey(meta) {
@@ -54,14 +44,33 @@ export function swapPage(html) {
   })
   oldMap.forEach(meta => meta.remove())
   
-  //replace body
-  const body = doc.body.innerHTML
-  const title = doc.title
+  //morph
+  if(hasSwap.length > 0) {
+    const ops = []
+    hasSwap.forEach(element => {
+      const value = element.dataset.swap
+      const node = bodyResp.querySelector(`[data-swap="${value}"]`)
+      if(node) {
+        const [_, mode] = value.split(":").map(p => p.trim())
+        ops.push({ el: element, node, mode })
+      }
+    })
+    
+    if(ops.length > 0) {
+      enqueueSwapOps(ops)
+      return
+    }
+  }
   
-  dispatchZEvent("z:before-navigation", {}, document)
-  
-  document.body.innerHTML = body
-  document.title = title || document.title
-  
-  dispatchZEvent("z:after-navigation", {}, document)
+  //fallback
+  document.title = titleResp || document.title
+  body.replaceChildren(...bodyFrag)
+  if(hasScript.length > 0) {
+    hasScript.forEach(oldScript => {
+      const newScript = document.createElement("script")
+      Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.textContent = oldScript.textContent
+      body.appendChild(newScript)
+    })
+  }
 }

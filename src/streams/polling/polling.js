@@ -1,5 +1,5 @@
 import { $fetch } from "../../core/fetch.js"
-import { swap } from "../../core/swap.js"
+import { performSwap } from "../../core/swap.js"
 
 const polling_controller = new WeakMap()
 const active_elements = new Set()
@@ -27,7 +27,7 @@ export function startPolling(element) {
     
     try {
       const html = await $fetch(endpoint, { method: "GET" })
-      if(html) swap(html)
+      if(html) performSwap(html)
     } catch (err) {
       console.error("Polling request failed", err)
     }

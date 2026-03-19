@@ -1,4 +1,4 @@
-import { swap } from "../../core/swap.js"
+import { performSwap } from "../../core/swap.js"
 
 const sse_controllers = new WeakMap()
 
@@ -21,7 +21,7 @@ export function startSSE(element) {
   
   const eventSource = new EventSource(endpoint, { withCredentials: true })
   const handler = (e) => {
-    if(e.data) swap(e.data)
+    if(e.data) performSwap(e.data)
   }
   events.forEach(event => {
     eventSource.addEventListener(event, handler)

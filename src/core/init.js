@@ -1,6 +1,6 @@
 import { $fetch, abortAllRequest } from "./fetch.js"
 import { setZState, withTransition } from "./utils.js"
-import { swap, swapPage } from "./swap.js"
+import { performSwap } from "./swap.js"
 import { observer } from "../streams/mutation_observer.js"
 import { visibilityHandler } from "../streams/polling/polling.js"
 
@@ -48,7 +48,7 @@ async function handleForm(e) {
       method, body: bodyData,
       meta: { url, method, el: element }
     })
-    withTransition(hasTransition, () => swap(html))
+    withTransition(hasTransition, () => performSwap(html))
   } catch (err) {
     console.error("Request failed", err)
     element.requestSubmit()
@@ -83,7 +83,7 @@ async function handleNavigation(e) {
     })
     if(html) {
       history.pushState({ __z: {} }, "", url)
-      swapPage(html)
+      performSwap(html)
       requestAnimationFrame(() => window.scrollTo({ top: 0 }))
     }
   } catch (err) {
@@ -100,7 +100,7 @@ async function handlePopState(e) {
   try {
     const html = await $fetch(location.href, { method: "GET" })
     if(html) {
-      swapPage(html)
+      performSwap(html)
       const scroll = state.scroll
       if(!scroll) return
       requestAnimationFrame(() => window.scrollTo({ left: scroll.x, top: scroll.y }))
