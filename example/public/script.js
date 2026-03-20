@@ -37,4 +37,3 @@ document.addEventListener("z:after-request", (event) => {
     loading.classList.add("d-none")
   }
 })
-

@@ -1,3 +1,4 @@
+import { dispatchZEvent } from "./utils.js"
 import { enqueueSwapOps } from "./batching.js"
 
 export function performSwap(html) {
@@ -60,7 +61,9 @@ export function performSwap(html) {
   oldMap.forEach(meta => meta.remove())
   
   //fallback
+  dispatchZEvent("z:before-navigation", {}, document)
   const bodyFrag = Array.from(bodyResp.childNodes)
   document.title = titleResp || document.title
   body.replaceChildren(...bodyFrag)
+  dispatchZEvent("z:after-navigation", {}, document)
 }

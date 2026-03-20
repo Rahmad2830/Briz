@@ -93,10 +93,8 @@ app.get("/partials/loading", async(req, res) => {
 
 //multi-swap
 app.get("/multi_swap", (req, res) => {
-  res.render("multi_swap")
-})
-app.get("/partials/multi_swap", (req, res) => {
-  res.render("partials/multi_swap")
+  const rand = Math.random()
+  res.render("multi_swap", { rand })
 })
 
 //redirect
