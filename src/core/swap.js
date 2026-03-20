@@ -11,6 +11,24 @@ export function performSwap(html) {
   hasScript.forEach(s => s.remove())
   const bodyFrag = Array.from(bodyResp.childNodes)
   
+  //morph
+  if(hasSwap.length > 0) {
+    const ops = []
+    hasSwap.forEach(element => {
+      const value = element.dataset.swap
+      const node = bodyResp.querySelector(`[data-swap="${value}"]`)
+      if(node) {
+        const [_, mode] = value.split(":").map(p => p.trim())
+        ops.push({ el: element, node, mode })
+      }
+    })
+    
+    if(ops.length > 0) {
+      enqueueSwapOps(ops)
+      return
+    }
+  }
+  
   //diff meta
   function getMetaKey(meta) {
     return (
@@ -44,33 +62,7 @@ export function performSwap(html) {
   })
   oldMap.forEach(meta => meta.remove())
   
-  //morph
-  if(hasSwap.length > 0) {
-    const ops = []
-    hasSwap.forEach(element => {
-      const value = element.dataset.swap
-      const node = bodyResp.querySelector(`[data-swap="${value}"]`)
-      if(node) {
-        const [_, mode] = value.split(":").map(p => p.trim())
-        ops.push({ el: element, node, mode })
-      }
-    })
-    
-    if(ops.length > 0) {
-      enqueueSwapOps(ops)
-      return
-    }
-  }
-  
   //fallback
   document.title = titleResp || document.title
   body.replaceChildren(...bodyFrag)
-  if(hasScript.length > 0) {
-    hasScript.forEach(oldScript => {
-      const newScript = document.createElement("script")
-      Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
-      newScript.textContent = oldScript.textContent
-      body.appendChild(newScript)
-    })
-  }
 }

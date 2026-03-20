@@ -24,7 +24,7 @@ app.get('/', (req, res) => {
 })
 
 //basic swap
-app.get('/swap', (req, res) => {
+app.get('/swap', async(req, res) => {
   const rand = Math.random()
   res.render('swap', { rand })
 })

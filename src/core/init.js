@@ -71,6 +71,7 @@ async function handleNavigation(e) {
   if (element.rel?.includes("external")) return
 
   e.preventDefault()
+  document.documentElement.setAttribute("data-briz-loading", "true")
   abortAllRequest()
   setZState({ scroll: { x: window.scrollX, y: window.scrollY } })
   const url = element.href
@@ -85,10 +86,18 @@ async function handleNavigation(e) {
       history.pushState({ __z: {} }, "", url)
       performSwap(html)
       requestAnimationFrame(() => window.scrollTo({ top: 0 }))
+      document.documentElement.setAttribute("data-briz-loading", "done")
     }
   } catch (err) {
     console.error("Request failed", err)
     window.location.href = url
+  } finally {
+    setTimeout(() => {
+      document.documentElement.removeAttribute("data-briz-loading")
+      if(document.documentElement.getAttribute("data-briz-loading") === "done") {
+         document.documentElement.removeAttribute("data-briz-loading")
+      }
+    }, 300)
   }
 }
 
