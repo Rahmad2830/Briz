@@ -7,9 +7,6 @@ export function performSwap(html) {
   const bodyResp = doc.body
   const hasSwap = body.querySelectorAll("[data-swap]")
   const titleResp = doc.title
-  const hasScript = Array.from(bodyResp.querySelectorAll("script"))
-  hasScript.forEach(s => s.remove())
-  const bodyFrag = Array.from(bodyResp.childNodes)
   
   //morph
   if(hasSwap.length > 0) {
@@ -63,6 +60,7 @@ export function performSwap(html) {
   oldMap.forEach(meta => meta.remove())
   
   //fallback
+  const bodyFrag = Array.from(bodyResp.childNodes)
   document.title = titleResp || document.title
   body.replaceChildren(...bodyFrag)
 }
