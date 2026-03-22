@@ -1,5 +1,5 @@
 {
-  "name": "briz",
+  "name": "briz-js",
   "version": "1.0.0",
   "description": "Hypermedia based frontend library for interactive website",
   "type": "module",
