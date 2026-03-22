@@ -40,7 +40,7 @@ app.get('/polling', (req, res) => {
 app.get("/event", (req, res) => {
   res.render("event")
 })
-app.post("/event", forms.none(), (req, res) => {
+app.post("/partials/event", forms.none(), (req, res) => {
   const token = req.headers["x-csrf-token"]
   
   console.log(token)
