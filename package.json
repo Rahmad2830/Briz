@@ -1,5 +1,5 @@
 {
-  "name": "@rahmat_12345/briz",
+  "name": "briz",
   "version": "1.0.0",
   "description": "Hypermedia based frontend library for interactive website",
   "type": "module",
