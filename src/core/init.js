@@ -31,6 +31,8 @@ async function handleForm(e) {
   if(!url) return
   let method = (element.method || "GET").toUpperCase()
   const hasTransition = element.hasAttribute("data-transition")
+  const submitBtn = element.querySelector("button[type='submit']")
+  if(submitBtn) submitBtn.disabled = true
   
   if(method === "GET") {
     const u = new URL(element.action, location.href)
@@ -48,10 +50,14 @@ async function handleForm(e) {
       method, body: bodyData,
       meta: { url, method, el: element }
     })
-    withTransition(hasTransition, () => performSwap(html))
+    if(html) {
+      withTransition(hasTransition, () => performSwap(html))
+    }
   } catch (err) {
     console.error("Request failed", err)
-    element.requestSubmit()
+    alert("Request failed")
+  } finally {
+    if(submitBtn) submitBtn.disabled = false
   }
 }
 
