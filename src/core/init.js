@@ -1,5 +1,5 @@
 import { $fetch, abortAllRequest } from "./fetch.js"
-import { setZState, withTransition } from "./utils.js"
+import { setZState, withTransition, showLoading, hideLoading } from "./utils.js"
 import { performSwap } from "./swap.js"
 import { observer } from "../streams/mutation_observer.js"
 import { visibilityHandler } from "../streams/polling/polling.js"
@@ -55,7 +55,6 @@ async function handleForm(e) {
     }
   } catch (err) {
     console.error("Request failed", err)
-    alert("Request failed")
   } finally {
     if(submitBtn) submitBtn.disabled = false
   }
@@ -77,7 +76,7 @@ async function handleNavigation(e) {
   if (element.rel?.includes("external")) return
 
   e.preventDefault()
-  document.documentElement.setAttribute("data-briz-loading", "true")
+  showLoading()
   abortAllRequest()
   setZState({ scroll: { x: window.scrollX, y: window.scrollY } })
   const url = element.href
@@ -92,18 +91,14 @@ async function handleNavigation(e) {
       history.pushState({ __z: {} }, "", url)
       performSwap(html)
       requestAnimationFrame(() => window.scrollTo({ top: 0 }))
-      document.documentElement.setAttribute("data-briz-loading", "done")
+      hideLoading()
     }
   } catch (err) {
+    hideLoading()
     console.error("Request failed", err)
     window.location.href = url
   } finally {
-    setTimeout(() => {
-      document.documentElement.removeAttribute("data-briz-loading")
-      if(document.documentElement.getAttribute("data-briz-loading") === "done") {
-         document.documentElement.removeAttribute("data-briz-loading")
-      }
-    }, 300)
+    hideLoading()
   }
 }
 

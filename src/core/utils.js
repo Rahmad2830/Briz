@@ -24,3 +24,24 @@ export function withTransition(haveTransition = false, swapFn) {
   document.startViewTransition(() => swapFn())
 }
 
+
+let loadingCount = 0
+
+export function showLoading() {
+  loadingCount++
+  document.documentElement.setAttribute("data-briz-loading", "true")
+}
+
+export function hideLoading() {
+  loadingCount--
+  if (loadingCount <= 0) {
+    loadingCount = 0
+    document.documentElement.setAttribute("data-briz-loading", "done")
+    
+    setTimeout(() => {
+      if (loadingCount === 0) {
+        document.documentElement.removeAttribute("data-briz-loading")
+      }
+    }, 300)
+  }
+}

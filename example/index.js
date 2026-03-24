@@ -25,6 +25,7 @@ app.get('/', (req, res) => {
 
 //basic swap
 app.get('/swap', async(req, res) => {
+  await new Promise(resolve => setTimeout(resolve, 4000))
   const rand = Math.random()
   res.render('swap', { rand })
 })
