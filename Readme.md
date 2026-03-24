@@ -40,7 +40,7 @@ Briz.js is a lightweight JavaScript library for building dynamic, server-driven 
 Simply include Briz.js into your project via cdn
 
 ```html
-<script type="module" src="https://cdn.jsdelivr.net/gh/Rahmad2830/Briz@v1.0.8/dist/Briz.min.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/gh/Rahmad2830/Briz@v1.0.9/dist/Briz.min.js"></script>
 ```
 
 **📚 Documentation**
