@@ -51,7 +51,7 @@ async function handleForm(e) {
       meta: { url, method, el: element }
     })
     if(html) {
-      withTransition(hasTransition, () => performSwap(html))
+      requestAnimationFrame(() => withTransition(hasTransition, () => performSwap(html)))
     }
   } catch (err) {
     console.error("Request failed", err)
@@ -89,12 +89,13 @@ async function handleNavigation(e) {
     })
     if(html) {
       history.pushState({ __z: {} }, "", url)
-      performSwap(html)
-      requestAnimationFrame(() => window.scrollTo({ top: 0 }))
-      hideLoading()
+      requestAnimationFrame(() => {
+        performSwap(html)
+        window.scrollTo({ top: 0 })
+        hideLoading()
+      })
     }
   } catch (err) {
-    hideLoading()
     console.error("Request failed", err)
     window.location.href = url
   } finally {
@@ -110,10 +111,12 @@ async function handlePopState(e) {
   try {
     const html = await $fetch(location.href, { method: "GET" })
     if(html) {
-      performSwap(html)
-      const scroll = state.scroll
-      if(!scroll) return
-      requestAnimationFrame(() => window.scrollTo({ left: scroll.x, top: scroll.y }))
+      requestAnimationFrame(() => {
+        performSwap(html)
+        const scroll = state.scroll
+        if(!scroll) return
+        window.scrollTo({ left: scroll.x, top: scroll.y })
+      })
     }
   } catch (err) {
     console.error("Popstate failed", err)
