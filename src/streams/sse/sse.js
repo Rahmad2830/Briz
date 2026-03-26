@@ -15,11 +15,11 @@ export function startSSE(element) {
   
   const endpoint = element.dataset.sse
   if(!endpoint) throw new Error("[data-sse] missing required attribute: data-sse")
-  const eventsLists = element.dataset.event
-  if(!eventsLists) throw new Error("[data-sse] missing required attribute: data-event")
+  const eventsLists = element.dataset.event || "message"
+  const withCredentials = element.hasAttribute("data-credentials")
   const events = eventsLists.split(",").map(e => e.trim())
   
-  const eventSource = new EventSource(endpoint, { withCredentials: true })
+  const eventSource = new EventSource(endpoint, { withCredentials })
   const handler = (e) => {
     if(e.data) performSwap(e.data)
   }
